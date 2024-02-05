@@ -26,6 +26,8 @@ VOID CryptFile(char* inFile, char* method, char* key) {
 		// Determine file size
 		fseek(scFile, 0, SEEK_END);
 		long fileSize = ftell(scFile);
+		printf("File size: %d bytes\n", fileSize);
+
 		fseek(scFile, 0, SEEK_SET);
 
 		char* scBuffer = (char*)malloc(fileSize);
@@ -36,7 +38,7 @@ VOID CryptFile(char* inFile, char* method, char* key) {
 		fclose(scFile);
 		free(fname);
 
-		XorByInputKey(scBuffer, sizeof(scBuffer), key, sizeof(key));
+		XorByInputKey(scBuffer, fileSize, key, sizeof(key));
 
 		// Specify the file name
 		const char* filename = "XOREncrypted.bin";
@@ -49,10 +51,11 @@ VOID CryptFile(char* inFile, char* method, char* key) {
 		}
 
 		// Get the size of the buffer
-		size_t bufferSize = sizeof(scBuffer) / 2;
+		size_t bufferSize = fileSize;
 
+		size_t i;
 		// Write the contents of the buffer to the file using a loop
-		for (size_t i = 0; i < bufferSize; i++) {
+		for (i = 0; i < bufferSize; i++) {
 			// Write the byte to the file
 			fputc(scBuffer[i], eFile);
 		}
@@ -61,6 +64,15 @@ VOID CryptFile(char* inFile, char* method, char* key) {
 		fclose(eFile);
 
 		printf("[+] XOR-encrypted file written to : XOREncrypted.bin\n");
+
+		printf("\n");
+
+		printf("unsigned char shellcode[] = \"");
+		for (int i = 0; i < bufferSize; i++) {
+			printf("\\x%02x", (unsigned char)scBuffer[i]);
+		}
+		printf("\";");
+		printf("\n");
 	}
 	
 }
